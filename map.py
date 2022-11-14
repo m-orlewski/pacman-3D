@@ -15,7 +15,7 @@ class Map():
             Wall(3, 0, 5), Wall(4, 0, 5), Wall(5, 0, 5)
         ]
 
-        self.tiles = [
+        self.points = [
             Boost(-4, 0, -4), Point(-3, 0, -4), Point(-2, 0, -4), Point(-1, 0, -4), Point(1, 0, -4), Point(2, 0, -4), Point(3, 0, -4), Point(4, 0, -4), Point(4, 0, -1), Point(4, 0, -2), Boost(4, 0, 4),
             Point(-4, 0, -3), Point(-1, 0, -3), Point(1, 0, -3), Point(4, 0, -3), Point(-4, 0, -2), Point(-2, 0, -2), Point(-1, 0, -2), Point(0, 0, -2), Point(1, 0, -2), Point(2, 0, -2), Point(-2, 0, -1),
             Point(-4, 0, -1), Point(-4, 0, 0), Point(-3, 0, 0), Point(-2, 0, 0), Point(-1, 0, 0), Point(0, 0, 0), Point(1, 0, 0), Point(2, 0, 0), Point(3, 0, 0), Point(4, 0, 0), Point(-4, 0, 1),
@@ -35,14 +35,22 @@ class Map():
         elif pr.is_key_down(pr.KEY_UP):
             self.pacman.move_up(self.walls)
 
+        i, boost_activated = self.pacman.collect_points(self.points)
+
+        if i is not None:
+            del self.points[i]
+
+        if boost_activated:
+            pass #TODO
+
     def draw(self):
         pr.draw_plane(pr.Vector3(0, -0.5, 0), pr.Vector2(11, 11), pr.BLACK)
 
         for wall in self.walls:
             wall.draw()
 
-        for tile in self.tiles:
-            tile.draw()
+        for point in self.points:
+            point.draw()
 
         self.pacman.draw()
 

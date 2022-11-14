@@ -1,6 +1,6 @@
 import pyray as pr
 
-from cell import CELL_SIZE
+from cell import Point, Boost, CELL_SIZE, POINT_RADIUS, BOOST_RADIUS
 
 PACMAN_RADIUS = 0.4
 VELOCITY = 0.075
@@ -39,5 +39,18 @@ class Pacman():
             if pr.check_collision_box_sphere(boudingBox, newPos, PACMAN_RADIUS):
                 return True
         return False
+
+    def collect_points(self, points):
+        for i, point in enumerate(points):
+            if type(point) == Point:
+                if pr.check_collision_spheres(self.pos, PACMAN_RADIUS, point.pos, POINT_RADIUS):
+                    return (i, False)
+            elif type(point) == Boost:
+                if pr.check_collision_spheres(self.pos, PACMAN_RADIUS, point.pos, BOOST_RADIUS):
+                    return (i, True)
+
+        return (None, False)
+                
+
 
 
