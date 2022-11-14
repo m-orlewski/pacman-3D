@@ -48,12 +48,13 @@ class Map():
         self.pacman = Pacman()
         self.score = 0
 
-        self.red = Ghost(4, 0, 4, pr.RED)
-        self.orange = Ghost(-4, 0, -4, pr.ORANGE)
-        self.cyan = Ghost(-4, 0, 4, pr.Color(0, 255, 255, 255))
-        self.pink = Ghost(4, 0, -4, pr.PINK)
+        self.red = Ghost(4, 0, 4, pr.RED, 0)
+        self.orange = Ghost(-4, 0, -4, pr.ORANGE, 2)
+        self.cyan = Ghost(-4, 0, 4, pr.Color(0, 255, 255, 255), 1)
+        self.pink = Ghost(4, 0, -4, pr.PINK, 3)
 
     def update(self):
+        # update pacman movement
         if pr.is_key_down(pr.KEY_RIGHT):
             self.pacman.move_right(self.walls)
         elif pr.is_key_down(pr.KEY_LEFT):
@@ -63,11 +64,14 @@ class Map():
         elif pr.is_key_down(pr.KEY_UP):
             self.pacman.move_up(self.walls)
 
+        # check if game over
         if self.pacman.check_ghost_collsions(self.red, self.orange, self.cyan, self.pink):
             return GameState.GAME_OVER
 
+        # collect points
         i, boost_activated = self.pacman.collect_points(self.points)
 
+        # check if game won
         if i is not None:
             del self.points[i]
             self.score += 1
@@ -77,6 +81,12 @@ class Map():
 
         if boost_activated:
             pass #TODO
+
+        # move ghosts
+        self.red.move(self.walls)
+        self.orange.move(self.walls)
+        self.cyan.move(self.walls)
+        self.pink.move(self.walls)
         
         return GameState.GAMEPLAY
 
