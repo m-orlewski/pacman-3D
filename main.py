@@ -18,7 +18,6 @@ if __name__ == '__main__':
         pr.update_camera(camera)
 
         gameState = map.update()
-
         
         pr.begin_drawing()
         pr.clear_background(pr.RAYWHITE)
@@ -26,14 +25,15 @@ if __name__ == '__main__':
 
         if gameState == GameState.GAMEPLAY:
             map.draw()
-        elif gameState == GameState.PAUSED:
-            pass #TODO
         elif gameState == GameState.GAME_WON:
-            pass #TODO
+            print('Game Won')
         elif gameState == GameState.GAME_OVER:
-            pass #TODO
+            print('Game Over')
 
         pr.end_mode_3d()
+
+        pr.draw_text(f'Score: {map.score}', 5, 5, 40, pr.RED)
+
         pr.end_drawing()
 
     pr.close_window()
