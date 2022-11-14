@@ -1,13 +1,6 @@
 import pyray as pr
-from enum import Enum
 
-from map import Map
-
-class GameState(Enum):
-    GAMEPLAY = 0
-    PAUSED = 1
-    GAME_OVER = 2
-    GAME_WON = 3
+from map import Map, GameState
     
 
 if __name__ == '__main__':
@@ -24,7 +17,7 @@ if __name__ == '__main__':
     while not pr.window_should_close():
         pr.update_camera(camera)
 
-        map.update()
+        gameState = map.update()
 
         
         pr.begin_drawing()

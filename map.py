@@ -1,7 +1,14 @@
 import pyray as pr
+from enum import Enum
 
 from cell import Wall, Point, Boost, Tile
 from pacman import Pacman
+
+class GameState(Enum):
+    GAMEPLAY = 0
+    PAUSED = 1
+    GAME_OVER = 2
+    GAME_WON = 3
 
 class Map():
     def __init__(self):
@@ -39,9 +46,13 @@ class Map():
 
         if i is not None:
             del self.points[i]
+            if len(self.points) == 0:
+                return GameState.GAME_WON
 
         if boost_activated:
             pass #TODO
+
+        return GameState.GAMEPLAY
 
     def draw(self):
         pr.draw_plane(pr.Vector3(0, -0.5, 0), pr.Vector2(11, 11), pr.BLACK)
