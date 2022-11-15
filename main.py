@@ -1,7 +1,19 @@
 import pyray as pr
 
 from map import Map, GameState
-    
+
+map = '''###########
+#@***#****#
+#*##*#*##*#
+#*#*****#*#
+#*#*###*#*#
+#*********#
+#*#*###*#*#
+#*#*****#*#
+#*##*#*##*#
+#****#***@#
+###########
+'''
 
 if __name__ == '__main__':
     pr.init_window(1920, 1080, "Pacman 3D")
@@ -10,7 +22,7 @@ if __name__ == '__main__':
     camera = pr.Camera3D([0.0, 15.0, 10.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], 45.0, 0)
     pr.set_camera_mode(camera, pr.CAMERA_PERSPECTIVE)
 
-    map = Map()
+    map = Map(map)
 
     gameState = GameState.GAMEPLAY
 
