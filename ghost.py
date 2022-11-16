@@ -1,23 +1,50 @@
 import pyray as pr
 import random
-import time
+import math
 
 from cell import CELL_SIZE
 
-GHOST_RADIUS = 0.4
+GHOST_RADIUS = 0.7
 GHOST_SPEED = 0.05
 
 class Ghost():
-    def __init__(self, x, y, z, color, currentDirection):
+    def __init__(self, x, y, z, currentDirection, voxFileName):
+        self.voxFileName = voxFileName
         self.pos = pr.Vector3(x, y, z)
-        self.color = color
 
+        self.previousDirection = 2
         self.currentDirection = currentDirection
         self.oppositeDirection = (self.currentDirection + 2) % 4
         self.stepCount = 0
 
+        self.load_model()
+
     def draw(self):
-        pr.draw_sphere(self.pos, GHOST_RADIUS, self.color)
+        pr.draw_model(self.model, self.pos, 1.0, pr.WHITE)
+
+    def turn_model(self):
+        if self.currentDirection == 0:
+            mat_rotate = pr.matrix_rotate_y(math.radians(180))
+        elif self.currentDirection == 1:
+            mat_rotate = pr.matrix_rotate_y(math.radians(90))
+        elif self.currentDirection == 2:
+            mat_rotate = pr.matrix_rotate_y(math.radians(0))
+        elif self.currentDirection == 3:
+            mat_rotate = pr.matrix_rotate_y(math.radians(-90))
+
+        self.model.transform = pr.matrix_multiply(self.mat_translate, mat_rotate)
+
+    def load_model(self):
+        self.model = pr.load_model(self.voxFileName)
+        self.bb = pr.get_model_bounding_box(self.model)
+        self.center = pr.Vector3(self.bb.min.x + (((self.bb.max.x - self.bb.min.x)/2)), 0, self.bb.min.z + (((self.bb.max.z - self.bb.min.z)/2)))
+        self.mat_translate = pr.matrix_translate(-self.center.x, 0, -self.center.z)
+        rotation_mult = max(self.currentDirection, self.previousDirection) - min(self.currentDirection, self.previousDirection)
+        if self.previousDirection < self.currentDirection:
+            mat_rotate = pr.matrix_rotate_y(math.radians(-1*rotation_mult*90))
+        else:
+            mat_rotate = pr.matrix_rotate_y(math.radians(rotation_mult*90))
+        self.model.transform = pr.matrix_multiply(self.mat_translate, mat_rotate)
 
     def check_collisions(self, walls, newPos):
         for wall in walls:
@@ -36,20 +63,23 @@ class Ghost():
         newPosLeft = pr.Vector3(self.pos.x - GHOST_SPEED, self.pos.y, self.pos.z)
 
         canMove = [self.check_collisions(walls, newPosUp), self.check_collisions(walls, newPosRight), self.check_collisions(walls, newPosDown),self.check_collisions(walls, newPosLeft)]
-        print(canMove)
+
         if canMove.count(True) == 2 and canMove[self.currentDirection] and canMove[self.oppositeDirection]:
             return # can only go the same direction or turn back, so go ahead
         elif canMove.count(True) == 1:
+            self.previousDirection = self.currentDirection
             self.currentDirection, self.oppositeDirection = self.oppositeDirection, self.currentDirection # in case of dead end, turn back
+            self.turn_model()
         else:
             canMove[self.oppositeDirection] = False
             availableDirections = [i for i, value in enumerate(canMove) if value == True]
-            print(availableDirections)
+            self.previousDirection = self.currentDirection
             self.currentDirection = random.choice(availableDirections)
             self.oppositeDirection = (self.currentDirection + 2) % 4
+            self.turn_model()
 
     def move(self, walls):
-        if self.stepCount == 20:
+        if self.stepCount == CELL_SIZE/GHOST_SPEED:
             self.updateDirection(walls)
             self.stepCount = 0
 
