@@ -10,12 +10,12 @@ RESPAWN_TIME = 5
 
 class Ghost():
     def __init__(self, x, y, z, currentDirection, voxFileName):
-        self.voxFileName = voxFileName
+        self.voxFileName = voxFileName # path to vox model
         self.pos = pr.Vector3(x, y, z)
 
-        self.previousDirection = 2
-        self.currentDirection = currentDirection
-        self.oppositeDirection = (self.currentDirection + 2) % 4
+        self.previousDirection = 2 # previous direction(for rotating models)
+        self.currentDirection = currentDirection 
+        self.oppositeDirection = (self.currentDirection + 2) % 4 # opposite direction
         self.stepCount = 0
 
         self.scatterMode = False
@@ -24,11 +24,13 @@ class Ghost():
         self.load_model()
 
     def draw(self):
+        '''Draw ghost'''
         if not self.isEaten:
             pr.draw_model(self.model, self.pos, 1.0, pr.WHITE)
             self.bb = pr.BoundingBox(pr.Vector3(self.pos.x - GHOST_RADIUS, self.pos.y - GHOST_RADIUS, self.pos.z - GHOST_RADIUS), pr.Vector3(self.pos.x + GHOST_RADIUS, self.pos.y + GHOST_RADIUS, self.pos.z + GHOST_RADIUS))
 
     def turn_model(self):
+        '''Rotate the model to the direction its moving'''
         if self.currentDirection == 0:
             mat_rotate = pr.matrix_rotate_y(math.radians(180))
         elif self.currentDirection == 1:
@@ -41,6 +43,7 @@ class Ghost():
         self.model.transform = pr.matrix_multiply(self.mat_translate, mat_rotate)
 
     def load_model(self):
+        '''Load ghost model, rotate and transform it'''
         self.model = pr.load_model(self.voxFileName)
         self.bb = pr.get_model_bounding_box(self.model)
         self.center = pr.Vector3(self.bb.min.x + (((self.bb.max.x - self.bb.min.x)/2)), 0, self.bb.min.z + (((self.bb.max.z - self.bb.min.z)/2)))
@@ -53,6 +56,7 @@ class Ghost():
         self.model.transform = pr.matrix_multiply(self.mat_translate, mat_rotate)
 
     def load_scatter_model(self):
+        '''Load ghost model in scatter mode'''
         self.model = pr.load_model('models/scatter.vox')
         self.bb = pr.get_model_bounding_box(self.model)
         self.center = pr.Vector3(self.bb.min.x + (((self.bb.max.x - self.bb.min.x)/2)), 0, self.bb.min.z + (((self.bb.max.z - self.bb.min.z)/2)))
@@ -66,6 +70,7 @@ class Ghost():
 
 
     def check_collisions(self, walls, newPos):
+        '''Check for ghost collision with walls'''
         for wall in walls:
             wallBoudingBox = pr.BoundingBox(pr.Vector3(wall.pos.x - CELL_SIZE/2, wall.pos.y - CELL_SIZE/2, wall.pos.z - CELL_SIZE/2),
                                         pr.Vector3(wall.pos.x + CELL_SIZE/2, wall.pos.y + CELL_SIZE/2, wall.pos.z + CELL_SIZE/2))
@@ -75,7 +80,8 @@ class Ghost():
                 return False
         return True
 
-    def update_direction(self, walls):        
+    def update_direction(self, walls): 
+        '''Update ghost direction, choose new direction at random from available ones'''       
         newPosUp = pr.Vector3(self.pos.x, self.pos.y, self.pos.z - GHOST_SPEED)
         newPosRight = pr.Vector3(self.pos.x + GHOST_SPEED, self.pos.y, self.pos.z)
         newPosDown = pr.Vector3(self.pos.x, self.pos.y, self.pos.z + GHOST_SPEED)
@@ -91,13 +97,14 @@ class Ghost():
             self.turn_model()
         else:
             canMove[self.oppositeDirection] = False
-            availableDirections = [i for i, value in enumerate(canMove) if value == True]
+            availableDirections = [i for i, value in enumerate(canMove) if value == True] # choose random direction
             self.previousDirection = self.currentDirection
             self.currentDirection = random.choice(availableDirections)
             self.oppositeDirection = (self.currentDirection + 2) % 4
             self.turn_model()
 
     def move(self, walls):
+        '''Move ghost, update direction if it's in the middle of new cell'''
         if self.isEaten:
             currentTime = pr.get_time()
             if currentTime - self.deathTime >= RESPAWN_TIME:
@@ -122,23 +129,27 @@ class Ghost():
         self.stepCount += 1
 
     def change_scatter_mode(self):
+        '''Change scatter mode on and off'''
         if self.scatterMode:
             self.scatterMode = False
             self.load_model()
             self.turn_model()
         else:
             self.scatterMode = True
-            self.previousDirection = self.currentDirection
+            self.previousDirection = self.currentDirection # ghosts turn back
             self.currentDirection, self.oppositeDirection = self.oppositeDirection, self.currentDirection
             self.load_scatter_model()
             self.stepCount = CELL_SIZE/GHOST_SPEED - self.stepCount
 
     def ghost_death(self):
+        '''Move ghost back to respawn after it was killed'''
         self.isEaten = True
         self.deathTime = pr.get_time()
         self.pos = pr.Vector3(0, 0, 0) # move to respawn
+        self.bb = pr.BoundingBox(pr.Vector3(self.pos.x - GHOST_RADIUS, self.pos.y - GHOST_RADIUS, self.pos.z - GHOST_RADIUS), pr.Vector3(self.pos.x + GHOST_RADIUS, self.pos.y + GHOST_RADIUS, self.pos.z + GHOST_RADIUS))
 
     def respawn(self):
+        '''Respawn ghost'''
         self.isEaten = False
         self.currentDirection = 0
         self.oppositeDirection = 2
