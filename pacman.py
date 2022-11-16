@@ -87,13 +87,14 @@ class Pacman():
 
         return (None, False)
 
-    def check_ghost_collsions(self, ghosts, scatterMode):
+    def check_ghost_collsions(self, ghosts, scatterMode, sound):
         '''
             Check for collisions with ghosts
         '''
         for ghost in ghosts:
             if not ghost.isEaten and pr.check_collision_box_sphere(ghost.bb, self.pos, PACMAN_RADIUS): # skip ghosts that are dead and waiting for respawn
                 if scatterMode:
+                    pr.play_sound(sound)
                     self.eat_ghost(ghost)
                 else:
                     return True

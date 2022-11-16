@@ -57,7 +57,7 @@ class Ghost():
 
     def load_scatter_model(self):
         '''Load ghost model in scatter mode'''
-        self.model = pr.load_model('models/scatter.vox')
+        self.model = pr.load_model('resources/models/scatter.vox')
         self.bb = pr.get_model_bounding_box(self.model)
         self.center = pr.Vector3(self.bb.min.x + (((self.bb.max.x - self.bb.min.x)/2)), 0, self.bb.min.z + (((self.bb.max.z - self.bb.min.z)/2)))
         self.mat_translate = pr.matrix_translate(-self.center.x, 0, -self.center.z)

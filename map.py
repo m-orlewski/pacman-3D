@@ -19,7 +19,7 @@ class Map():
 
         # read map from file
         map = []
-        with open('maps/map2.dat', 'r') as mapFile:     
+        with open('resources/maps/map2.dat', 'r') as mapFile:     
             mapSize = mapFile.readline().strip().split()
             self.mapWidth = int(mapSize[0])
             self.mapHeight = int(mapSize[1])
@@ -49,13 +49,17 @@ class Map():
         self.pacman = Pacman()
         self.score = 0
 
-
         # create ghosts
         m1 = math.floor(self.mapWidth/2)-1
         m2 = math.floor(self.mapHeight/2)-1
-        self.ghosts = [Ghost(m1*CELL_SIZE, 0, m2*CELL_SIZE, 0, 'models/red.vox'), Ghost(-m1*CELL_SIZE, 0, -m2*CELL_SIZE, 2, 'models/orange.vox'),
-                       Ghost(-m1*CELL_SIZE, 0, m2*CELL_SIZE, 1, 'models/cyan.vox'), Ghost(m1*CELL_SIZE, 0, -m2*CELL_SIZE, 3, 'models/pink.vox')]
+        self.ghosts = [Ghost(m1*CELL_SIZE, 0, m2*CELL_SIZE, 0, 'resources/models/red.vox'), Ghost(-m1*CELL_SIZE, 0, -m2*CELL_SIZE, 2, 'resources/models/orange.vox'),
+                       Ghost(-m1*CELL_SIZE, 0, m2*CELL_SIZE, 1, 'resources/models/cyan.vox'), Ghost(m1*CELL_SIZE, 0, -m2*CELL_SIZE, 3, 'resources/models/pink.vox')]
         self.scatterMode = False
+
+        self.pacmanChompSound = pr.load_sound('resources/audio/pacman_chomp.wav')
+        self.pacmanDeathSound = pr.load_sound('resources/audio/pacman_death.wav')
+        self.pacmanEatFruitSound = pr.load_sound('resources/audio/pacman_eatfruit.wav')
+        self.pacmanEatGhostSound = pr.load_sound('resources/audio/pacman_eatghost.wav')
 
     def update(self):
         '''Update map state'''
@@ -75,7 +79,8 @@ class Map():
             ghost.move(self.walls)
 
         # check if game over
-        if self.pacman.check_ghost_collsions(self.ghosts, self.scatterMode):
+        if self.pacman.check_ghost_collsions(self.ghosts, self.scatterMode, self.pacmanEatGhostSound):
+            pr.play_sound(self.pacmanDeathSound)
             return GameState.GAME_OVER
 
         # collect points
@@ -85,12 +90,14 @@ class Map():
         if i is not None:
             del self.points[i]
             self.score += 1
+            pr.play_sound(self.pacmanChompSound)
 
             if len(self.points) == 0:
                 return GameState.GAME_WON
 
         # activate/prolong boost
         if boost_activated:
+            pr.play_sound(self.pacmanEatFruitSound)
             if self.scatterMode:
                 self.startTime = pr.get_time()
             else:
