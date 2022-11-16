@@ -9,7 +9,7 @@ if __name__ == '__main__':
     pr.init_audio_device()
     pr.set_target_fps(60)
 
-    camera = pr.Camera3D([0.0, 20.0, 15.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], 45.0, 0)
+    camera = pr.Camera3D([0.0, 20.0, 20.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], 45.0, 0)
 
     pr.set_camera_mode(camera, pr.CAMERA_PERSPECTIVE)
 
