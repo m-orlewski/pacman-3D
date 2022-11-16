@@ -9,7 +9,7 @@ PACMAN_SPEED = 0.075
 class Pacman():
     def __init__(self):
         self.pos = pr.Vector3(0, 0.6, 0)
-        self.currentDirection = 3
+        self.currentDirection = 0
 
     def draw(self):
         pr.draw_sphere(self.pos, PACMAN_RADIUS, pr.YELLOW)
@@ -69,28 +69,13 @@ class Pacman():
 
         return (None, False)
 
-    def check_ghost_collsions(self, red, orange, cyan, pink, scatterMode):
-        print(f'check collision with scatterMode={scatterMode}')
-        if not red.isEaten and pr.check_collision_box_sphere(red.bb, self.pos, PACMAN_RADIUS):
-            if scatterMode:
-                self.eat_ghost(red)
-            else:
-                return True
-        elif not orange.isEaten and pr.check_collision_box_sphere(orange.bb, self.pos, PACMAN_RADIUS):
-            if scatterMode:
-                self.eat_ghost(orange)
-            else:
-                return True
-        elif not cyan.isEaten and pr.check_collision_box_sphere(cyan.bb, self.pos, PACMAN_RADIUS):
-            if scatterMode:
-                self.eat_ghost(cyan)
-            else:
-                return True
-        elif not pink.isEaten and pr.check_collision_box_sphere(pink.bb, self.pos, PACMAN_RADIUS):
-            if scatterMode:
-                self.eat_ghost(pink)
-            else:
-                return True
+    def check_ghost_collsions(self, ghosts, scatterMode):
+        for ghost in ghosts:
+            if not ghost.isEaten and pr.check_collision_box_sphere(ghost.bb, self.pos, PACMAN_RADIUS):
+                if scatterMode:
+                    self.eat_ghost(ghost)
+                else:
+                    return True
         return False
 
     def eat_ghost(self, ghost):

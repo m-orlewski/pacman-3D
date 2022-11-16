@@ -75,7 +75,7 @@ class Ghost():
                 return False
         return True
 
-    def updateDirection(self, walls):        
+    def update_direction(self, walls):        
         newPosUp = pr.Vector3(self.pos.x, self.pos.y, self.pos.z - GHOST_SPEED)
         newPosRight = pr.Vector3(self.pos.x + GHOST_SPEED, self.pos.y, self.pos.z)
         newPosDown = pr.Vector3(self.pos.x, self.pos.y, self.pos.z + GHOST_SPEED)
@@ -101,12 +101,13 @@ class Ghost():
         if self.isEaten:
             currentTime = pr.get_time()
             if currentTime - self.deathTime >= RESPAWN_TIME:
-                self.respawn(walls)
+                self.stepCount = 0
+                self.respawn()
             else:
                 return
 
         if self.stepCount == CELL_SIZE/GHOST_SPEED:
-            self.updateDirection(walls)
+            self.update_direction(walls)
             self.stepCount = 0
 
         if self.currentDirection == 0:
@@ -124,6 +125,7 @@ class Ghost():
         if self.scatterMode:
             self.scatterMode = False
             self.load_model()
+            self.turn_model()
         else:
             self.scatterMode = True
             self.previousDirection = self.currentDirection
@@ -136,10 +138,12 @@ class Ghost():
         self.deathTime = pr.get_time()
         self.pos = pr.Vector3(0, 0, 0) # move to respawn
 
-    def respawn(self, walls):
+    def respawn(self):
         self.isEaten = False
-        self.updateDirection(walls)
-        self.stepCount = 0
+        self.currentDirection = 0
+        self.oppositeDirection = 2
+        self.previousDirection = 2
+        self.turn_model()
 
 
 

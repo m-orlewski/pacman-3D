@@ -1,7 +1,8 @@
 import pyray as pr
 from enum import Enum
+import math
 
-from cell import Wall, Respawn, Point, Boost
+from cell import Wall, Point, Boost, CELL_SIZE
 from pacman import Pacman
 from ghost import Ghost
 
@@ -15,33 +16,36 @@ class GameState(Enum):
 class Map():
     def __init__(self):
 
-        #self.map =[
-        #    [Wall(-5, 0, -5), Wall(-4, 0, -5), Wall(-3, 0, -5), Wall(-2, 0, -5), Wall(-1, 0, -5), Wall(0, 0, -5), Wall(1, 0, -5), Wall(2, 0, -5), Wall(3, 0, -5), Wall(4, 0, -5), Wall(5, 0, -5)],
-        #    [Wall(-5, 0, -4), Boost(-4, 0, -4), Point(-3, 0, -4), Point(-2, 0, -4), Point(-1, 0, -4), Wall(0, 0, -4), Point(1, 0, -4), Point(2, 0, -4), Point(3, 0, -4), Point(4, 0, -4), Wall(5, 0, -4)],
-        #    [Wall(-5, 0, -3), Point(-4, 0, -3), Wall(-3, 0, -3), Wall(-2, 0, -3), Point(-1, 0, -3), Wall(0, 0, -3), Point(1, 0, -3), Wall(2, 0, -3), Wall(3, 0, -3), Point(4, 0, -3), Wall(5, 0, -3)],
-        #    [Wall(-5, 0, -2), Point(-4, 0, -2), Wall(-3, 0, -2), Point(-2, 0, -2), Point(-1, 0, -2), Point(0, 0, -2), Point(1, 0, -2), Point(2, 0, -2), Wall(3, 0, -2), Point(4, 0, -2), Wall(5, 0, -2)],
-        #    [Wall(-5, 0, -1), Point(-4, 0, -1), Wall(-3, 0, -1), Point(-2, 0, -1), Wall(-1, 0, -1), Wall(0, 0, -1), Wall(1, 0, -1), Point(2, 0, -1), Wall(3, 0, -1), Point(4, 0, -1), Wall(5, 0, -1)],
-        #    [Wall(-5, 0, 0), Point(-4, 0, 0), Point(-3, 0, 0), Point(-2, 0, 0), Point(-1, 0, 0), Point(0, 0, 0), Point(1, 0, 0), Point(2, 0, 0), Point(3, 0, 0), Point(4, 0, 0), Wall(5, 0, 0)],
-        #    [Wall(-5, 0, 1), Point(-4, 0, 1), Wall(-3, 0, 1), Point(-2, 0, 1), Wall(-1, 0, 1), Wall(0, 0, 1), Wall(1, 0, 1), Point(2, 0, 1), Wall(3, 0, 1), Point(4, 0, 1), Wall(5, 0, 1)],
-        #    [Wall(-5, 0, 2), Point(-4, 0, 2), Wall(-3, 0, 2), Point(-2, 0, 2), Point(-1, 0, 2), Point(0, 0, 2), Point(1, 0, 2), Point(2, 0, 2), Wall(3, 0, 2), Point(4, 0, 2), Wall(5, 0, 2)],
-        #    [Wall(-5, 0, 3), Point(-4, 0, 3), Wall(-3, 0, 3), Wall(-2, 0, 3), Point(-1, 0, 3), Wall(0, 0, 3), Point(1, 0, 3), Wall(2, 0, 3), Wall(3, 0, 3), Point(4, 0, 3), Wall(5, 0, 3)],
-        #    [Wall(-5, 0, 4), Point(-4, 0, 4), Point(-3, 0, 4), Point(-2, 0, 4), Point(-1, 0, 4), Wall(0, 0, 4), Point(1, 0, 4), Point(2, 0, 4), Point(3, 0, 4), Boost(4, 0, 4), Wall(5, 0, 4)],
-        #    [Wall(-5, 0, 5), Wall(-4, 0, 5), Wall(-3, 0, 5), Wall(-2, 0, 5), Wall(-1, 0, 5), Wall(0, 0, 5), Wall(1, 0, 5), Wall(2, 0, 5), Wall(3, 0, 5), Wall(4, 0, 5), Wall(5, 0, 5)]
-        #]
+        self.map = []
+        self.mapWidth = 17
+        self.mapHeight = 11
+        with open('map.dat', 'r') as mapFile:        
+            m2 = -math.floor(self.mapHeight/2)
+            for line in mapFile:
+                m1 = -math.floor(self.mapWidth/2)
+                for c in line:
+                    if c == '#':
+                        self.map.append(Wall(CELL_SIZE * m1, 0, CELL_SIZE*m2))
+                    elif c == '*':
+                        self.map.append(Point(CELL_SIZE * m1, 0, CELL_SIZE*m2))
+                    elif c == '$':
+                        self.map.append(Boost(CELL_SIZE * m1, 0, CELL_SIZE*m2))
+                    m1 += 1
+                m2 += 1
 
-        self.map = [
+        '''        self.map = [
             Wall(-7.5, 0, -7.5), Wall(-6, 0, -7.5), Wall(-4.5, 0, -7.5), Wall(-3, 0, -7.5), Wall(-1.5, 0, -7.5), Wall(0, 0, -7.5), Wall(1.5, 0, -7.5), Wall(3, 0, -7.5), Wall(4.5, 0, -7.5), Wall(6, 0, -7.5), Wall(7.5, 0, -7.5),
             Wall(-7.5, 0, -6), Boost(-6, 0, -6), Point(-4.5, 0, -6), Point(-3, 0, -6), Point(-1.5, 0, -6), Wall(0, 0, -6), Point(1.5, 0, -6), Point(3, 0, -6), Point(4.5, 0, -6), Point(6, 0, -6), Wall(7.5, 0, -6),
             Wall(-7.5, 0, -4.5), Point(-6, 0, -4.5), Wall(-4.5, 0, -4.5), Wall(-3, 0, -4.5), Point(-1.5, 0, -4.5), Wall(0, 0, -4.5), Point(1.5, 0, -4.5), Wall(3, 0, -4.5), Wall(4.5, 0, -4.5), Point(6, 0, -4.5), Wall(7.5, 0, -4.5),
             Wall(-7.5, 0, -3), Point(-6, 0, -3), Wall(-4.5, 0, -3), Point(-3, 0, -3), Point(-1.5, 0, -3), Point(0, 0, -3), Point(1.5, 0, -3), Point(3, 0, -3), Wall(4.5, 0, -3), Point(6, 0, -3), Wall(7.5, 0, -3),
             Wall(-7.5, 0, -1.5), Point(-6, 0, -1.5), Wall(-4.5, 0, -1.5), Point(-3, 0, -1.5), Wall(-1.5, 0, -1.5), Wall(0, 0, -1.5), Wall(1.5, 0, -1.5), Point(3, 0, -1.5), Wall(4.5, 0, -1.5), Point(6, 0, -1.5), Wall(7.5, 0, -1.5),
-            Wall(-7.5, 0, 0), Point(-6, 0, 0), Point(-4.5, 0, 0), Point(-3, 0, 0), Point(-1.5, 0, 0), Respawn(0, 0, 0), Point(1.5, 0, 0), Point(3, 0, 0), Point(4.5, 0, 0), Point(6, 0, 0), Wall(7.5, 0, 0),
+            Wall(-7.5, 0, 0), Point(-6, 0, 0), Point(-4.5, 0, 0), Point(-3, 0, 0), Point(-1.5, 0, 0), Point(0, 0, 0), Point(1.5, 0, 0), Point(3, 0, 0), Point(4.5, 0, 0), Point(6, 0, 0), Wall(7.5, 0, 0),
             Wall(-7.5, 0, 1.5), Point(-6, 0, 1.5), Wall(-4.5, 0, 1.5), Point(-3, 0, 1.5), Wall(-1.5, 0, 1.5), Wall(0, 0, 1.5), Wall(1.5, 0, 1.5), Point(3, 0, 1.5), Wall(4.5, 0, 1.5), Point(6, 0, 1.5), Wall(7.5, 0, 1.5),
             Wall(-7.5, 0, 3), Point(-6, 0, 3), Wall(-4.5, 0, 3), Point(-3, 0, 3), Point(-1.5, 0, 3), Point(0, 0, 3), Point(1.5, 0, 3), Point(3, 0, 3), Wall(4.5, 0, 3), Point(6, 0, 3), Wall(7.5, 0, 3),
             Wall(-7.5, 0, 4.5), Point(-6, 0, 4.5), Wall(-4.5, 0, 4.5), Wall(-3, 0, 4.5), Point(-1.5, 0, 4.5), Wall(0, 0, 4.5), Point(1.5, 0, 4.5), Wall(3, 0, 4.5), Wall(4.5, 0, 4.5), Point(6, 0, 4.5), Wall(7.5, 0, 4.5),
             Wall(-7.5, 0, 6), Point(-6, 0, 6), Point(-4.5, 0, 6), Point(-3, 0, 6), Point(-1.5, 0, 6), Wall(0, 0, 6), Point(1.5, 0, 6), Point(3, 0, 6), Point(4.5, 0, 6), Boost(6, 0, 6), Wall(7.5, 0, 6),
             Wall(-7.5, 0, 7.5), Wall(-6, 0, 7.5), Wall(-4.5, 0, 7.5), Wall(-3, 0, 7.5), Wall(-1.5, 0, 7.5), Wall(0, 0, 7.5), Wall(1.5, 0, 7.5), Wall(3, 0, 7.5), Wall(4.5, 0, 7.5), Wall(6, 0, 7.5), Wall(7.5, 0, 7.5)
-        ]
+        ]'''
 
 
         self.walls = []
@@ -55,10 +59,7 @@ class Map():
         self.pacman = Pacman()
         self.score = 0
 
-        self.red = Ghost(6, 0, 6, 0, 'models/red.vox')
-        self.orange = Ghost(-6, 0, -6, 2, 'models/orange.vox')
-        self.cyan = Ghost(-6, 0, 6, 1, 'models/cyan.vox')
-        self.pink = Ghost(6, 0, -6, 3, 'models/pink.vox')
+        self.ghosts = [Ghost(10.5, 0, 6, 0, 'models/red.vox'), Ghost(-10.5, 0, -6, 2, 'models/orange.vox'), Ghost(-10.5, 0, 6, 1, 'models/cyan.vox'), Ghost(10.5, 0, -6, 3, 'models/pink.vox')]
 
         self.scatterMode = False
 
@@ -74,13 +75,11 @@ class Map():
             self.pacman.move_up(self.walls)
 
         # move ghosts
-        self.red.move(self.walls)
-        self.orange.move(self.walls)
-        self.cyan.move(self.walls)
-        self.pink.move(self.walls)
+        for ghost in self.ghosts:
+            ghost.move(self.walls)
 
         # check if game over
-        if self.pacman.check_ghost_collsions(self.red, self.orange, self.cyan, self.pink, self.scatterMode):
+        if self.pacman.check_ghost_collsions(self.ghosts, self.scatterMode):
             return GameState.GAME_OVER
 
         # collect points
@@ -95,26 +94,25 @@ class Map():
                 return GameState.GAME_WON
 
         if boost_activated:
-            self.scatterMode = True
-            self.red.change_scatter_mode()
-            self.orange.change_scatter_mode()
-            self.cyan.change_scatter_mode()
-            self.pink.change_scatter_mode()
-            self.startTime = pr.get_time()
+            if self.scatterMode:
+                self.startTime = pr.get_time()
+            else:
+                self.scatterMode = True
+                for ghost in self.ghosts:
+                    ghost.change_scatter_mode()
+                    self.startTime = pr.get_time()
 
         if self.scatterMode:
             currentTime = pr.get_time()
             if currentTime - self.startTime >= BOOST_TIME:
                 self.scatterMode = False
-                self.red.change_scatter_mode()
-                self.orange.change_scatter_mode()
-                self.cyan.change_scatter_mode()
-                self.pink.change_scatter_mode()
+                for ghost in self.ghosts:
+                    ghost.change_scatter_mode()
         
         return GameState.GAMEPLAY
 
     def draw(self):
-        pr.draw_plane(pr.Vector3(0, -0.5, 0), pr.Vector2(16.5, 16.5), pr.BLACK)
+        pr.draw_plane(pr.Vector3(0, -0.5, 0), pr.Vector2(self.mapWidth*CELL_SIZE, self.mapHeight*CELL_SIZE), pr.BLACK)
 
         for wall in self.walls:
             wall.draw()
@@ -124,10 +122,8 @@ class Map():
 
         self.pacman.draw()
         
-        self.red.draw()
-        self.orange.draw()
-        self.cyan.draw()
-        self.pink.draw()
+        for ghost in self.ghosts:
+            ghost.draw()
         
 
 if __name__ == '__main__':
