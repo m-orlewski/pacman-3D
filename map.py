@@ -1,9 +1,11 @@
 import pyray as pr
 from enum import Enum
 
-from cell import Wall, Point, Boost
+from cell import Wall, Respawn, Point, Boost
 from pacman import Pacman
 from ghost import Ghost
+
+BOOST_TIME = 5
 
 class GameState(Enum):
     GAMEPLAY = 0
@@ -33,7 +35,7 @@ class Map():
             Wall(-7.5, 0, -4.5), Point(-6, 0, -4.5), Wall(-4.5, 0, -4.5), Wall(-3, 0, -4.5), Point(-1.5, 0, -4.5), Wall(0, 0, -4.5), Point(1.5, 0, -4.5), Wall(3, 0, -4.5), Wall(4.5, 0, -4.5), Point(6, 0, -4.5), Wall(7.5, 0, -4.5),
             Wall(-7.5, 0, -3), Point(-6, 0, -3), Wall(-4.5, 0, -3), Point(-3, 0, -3), Point(-1.5, 0, -3), Point(0, 0, -3), Point(1.5, 0, -3), Point(3, 0, -3), Wall(4.5, 0, -3), Point(6, 0, -3), Wall(7.5, 0, -3),
             Wall(-7.5, 0, -1.5), Point(-6, 0, -1.5), Wall(-4.5, 0, -1.5), Point(-3, 0, -1.5), Wall(-1.5, 0, -1.5), Wall(0, 0, -1.5), Wall(1.5, 0, -1.5), Point(3, 0, -1.5), Wall(4.5, 0, -1.5), Point(6, 0, -1.5), Wall(7.5, 0, -1.5),
-            Wall(-7.5, 0, 0), Point(-6, 0, 0), Point(-4.5, 0, 0), Point(-3, 0, 0), Point(-1.5, 0, 0), Point(0, 0, 0), Point(1.5, 0, 0), Point(3, 0, 0), Point(4.5, 0, 0), Point(6, 0, 0), Wall(7.5, 0, 0),
+            Wall(-7.5, 0, 0), Point(-6, 0, 0), Point(-4.5, 0, 0), Point(-3, 0, 0), Point(-1.5, 0, 0), Respawn(0, 0, 0), Point(1.5, 0, 0), Point(3, 0, 0), Point(4.5, 0, 0), Point(6, 0, 0), Wall(7.5, 0, 0),
             Wall(-7.5, 0, 1.5), Point(-6, 0, 1.5), Wall(-4.5, 0, 1.5), Point(-3, 0, 1.5), Wall(-1.5, 0, 1.5), Wall(0, 0, 1.5), Wall(1.5, 0, 1.5), Point(3, 0, 1.5), Wall(4.5, 0, 1.5), Point(6, 0, 1.5), Wall(7.5, 0, 1.5),
             Wall(-7.5, 0, 3), Point(-6, 0, 3), Wall(-4.5, 0, 3), Point(-3, 0, 3), Point(-1.5, 0, 3), Point(0, 0, 3), Point(1.5, 0, 3), Point(3, 0, 3), Wall(4.5, 0, 3), Point(6, 0, 3), Wall(7.5, 0, 3),
             Wall(-7.5, 0, 4.5), Point(-6, 0, 4.5), Wall(-4.5, 0, 4.5), Wall(-3, 0, 4.5), Point(-1.5, 0, 4.5), Wall(0, 0, 4.5), Point(1.5, 0, 4.5), Wall(3, 0, 4.5), Wall(4.5, 0, 4.5), Point(6, 0, 4.5), Wall(7.5, 0, 4.5),
@@ -58,6 +60,8 @@ class Map():
         self.cyan = Ghost(-6, 0, 6, 1, 'models/cyan.vox')
         self.pink = Ghost(6, 0, -6, 3, 'models/pink.vox')
 
+        self.scatterMode = False
+
     def update(self):
         # update pacman movement
         if pr.is_key_down(pr.KEY_RIGHT):
@@ -76,7 +80,7 @@ class Map():
         self.pink.move(self.walls)
 
         # check if game over
-        if self.pacman.check_ghost_collsions(self.red, self.orange, self.cyan, self.pink):
+        if self.pacman.check_ghost_collsions(self.red, self.orange, self.cyan, self.pink, self.scatterMode):
             return GameState.GAME_OVER
 
         # collect points
@@ -91,7 +95,21 @@ class Map():
                 return GameState.GAME_WON
 
         if boost_activated:
-            pass #TODO
+            self.scatterMode = True
+            self.red.change_scatter_mode()
+            self.orange.change_scatter_mode()
+            self.cyan.change_scatter_mode()
+            self.pink.change_scatter_mode()
+            self.startTime = pr.get_time()
+
+        if self.scatterMode:
+            currentTime = pr.get_time()
+            if currentTime - self.startTime >= BOOST_TIME:
+                self.scatterMode = False
+                self.red.change_scatter_mode()
+                self.orange.change_scatter_mode()
+                self.cyan.change_scatter_mode()
+                self.pink.change_scatter_mode()
         
         return GameState.GAMEPLAY
 

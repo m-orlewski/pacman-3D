@@ -29,8 +29,10 @@ if __name__ == '__main__':
             map.draw()
         elif gameState == GameState.GAME_WON:
             print('Game Won')
+            pr.close_window()
         elif gameState == GameState.GAME_OVER:
             print('Game Over')
+            pr.close_window()
 
         pr.end_mode_3d()
 

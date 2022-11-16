@@ -14,6 +14,13 @@ class Wall(Cell):
     def draw(self):
         pr.draw_cube(self.pos, CELL_SIZE, CELL_SIZE/2, CELL_SIZE, pr.GRAY)
 
+class Respawn(Cell):
+    def __init__(self, x, y, z):
+        super().__init__(x, y, z)
+
+    def draw(self):
+        pass
+
 class Point(Cell):
     def __init__(self, x, y, z):
         super().__init__(x, y, z)

@@ -17,11 +17,15 @@ class Ghost():
         self.oppositeDirection = (self.currentDirection + 2) % 4
         self.stepCount = 0
 
+        self.scatterMode = False
+        self.isEaten = False
+
         self.load_model()
 
     def draw(self):
-        pr.draw_model(self.model, self.pos, 1.0, pr.WHITE)
-        self.bb = pr.BoundingBox(pr.Vector3(self.pos.x - GHOST_RADIUS, self.pos.y - GHOST_RADIUS, self.pos.z - GHOST_RADIUS), pr.Vector3(self.pos.x + GHOST_RADIUS, self.pos.y + GHOST_RADIUS, self.pos.z + GHOST_RADIUS))
+        if not self.isEaten:
+            pr.draw_model(self.model, self.pos, 1.0, pr.WHITE)
+            self.bb = pr.BoundingBox(pr.Vector3(self.pos.x - GHOST_RADIUS, self.pos.y - GHOST_RADIUS, self.pos.z - GHOST_RADIUS), pr.Vector3(self.pos.x + GHOST_RADIUS, self.pos.y + GHOST_RADIUS, self.pos.z + GHOST_RADIUS))
 
     def turn_model(self):
         if self.currentDirection == 0:
@@ -38,7 +42,6 @@ class Ghost():
     def load_model(self):
         self.model = pr.load_model(self.voxFileName)
         self.bb = pr.get_model_bounding_box(self.model)
-        print(self.bb.min.x, self.bb.min.z, self.bb.max.x, self.bb.max.z)
         self.center = pr.Vector3(self.bb.min.x + (((self.bb.max.x - self.bb.min.x)/2)), 0, self.bb.min.z + (((self.bb.max.z - self.bb.min.z)/2)))
         self.mat_translate = pr.matrix_translate(-self.center.x, 0, -self.center.z)
         rotation_mult = max(self.currentDirection, self.previousDirection) - min(self.currentDirection, self.previousDirection)
@@ -47,6 +50,19 @@ class Ghost():
         else:
             mat_rotate = pr.matrix_rotate_y(math.radians(rotation_mult*90))
         self.model.transform = pr.matrix_multiply(self.mat_translate, mat_rotate)
+
+    def load_scatter_model(self):
+        self.model = pr.load_model('models/scatter.vox')
+        self.bb = pr.get_model_bounding_box(self.model)
+        self.center = pr.Vector3(self.bb.min.x + (((self.bb.max.x - self.bb.min.x)/2)), 0, self.bb.min.z + (((self.bb.max.z - self.bb.min.z)/2)))
+        self.mat_translate = pr.matrix_translate(-self.center.x, 0, -self.center.z)
+        rotation_mult = max(self.currentDirection, self.previousDirection) - min(self.currentDirection, self.previousDirection)
+        if self.previousDirection < self.currentDirection:
+            mat_rotate = pr.matrix_rotate_y(math.radians(-1*rotation_mult*90))
+        else:
+            mat_rotate = pr.matrix_rotate_y(math.radians(rotation_mult*90))
+        self.model.transform = pr.matrix_multiply(self.mat_translate, mat_rotate)
+
 
     def check_collisions(self, walls, newPos):
         for wall in walls:
@@ -81,6 +97,9 @@ class Ghost():
             self.turn_model()
 
     def move(self, walls):
+        if self.isEaten:
+            return
+
         if self.stepCount == CELL_SIZE/GHOST_SPEED:
             self.updateDirection(walls)
             self.stepCount = 0
@@ -95,6 +114,24 @@ class Ghost():
             self.pos.x -= GHOST_SPEED
 
         self.stepCount += 1
+
+    def change_scatter_mode(self):
+        if self.scatterMode:
+            self.scatterMode = False
+            self.load_model()
+        else:
+            self.scatterMode = True
+            self.previousDirection = self.currentDirection
+            self.currentDirection, self.oppositeDirection = self.oppositeDirection, self.currentDirection
+            self.load_scatter_model()
+            self.stepCount = CELL_SIZE/GHOST_SPEED - self.stepCount
+
+    def ghost_death(self):
+        self.isEaten = True
+        self.deathTime = pr.get_time()
+        self.pos = pr.Vector3(0, 0, 0) # move to respawn
+
+
 
         
         

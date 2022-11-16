@@ -69,16 +69,32 @@ class Pacman():
 
         return (None, False)
 
-    def check_ghost_collsions(self, red, orange, cyan, pink):
-        if pr.check_collision_box_sphere(red.bb, self.pos, PACMAN_RADIUS):
-            return True
-        elif pr.check_collision_box_sphere(orange.bb, self.pos, PACMAN_RADIUS):
-            return True
-        elif pr.check_collision_box_sphere(cyan.bb, self.pos, PACMAN_RADIUS):
-            return True
-        elif pr.check_collision_box_sphere(pink.bb, self.pos, PACMAN_RADIUS):
-            return True
+    def check_ghost_collsions(self, red, orange, cyan, pink, scatterMode):
+        print(f'check collision with scatterMode={scatterMode}')
+        if not red.isEaten and pr.check_collision_box_sphere(red.bb, self.pos, PACMAN_RADIUS):
+            if scatterMode:
+                self.eat_ghost(red)
+            else:
+                return True
+        elif not orange.isEaten and pr.check_collision_box_sphere(orange.bb, self.pos, PACMAN_RADIUS):
+            if scatterMode:
+                self.eat_ghost(orange)
+            else:
+                return True
+        elif not cyan.isEaten and pr.check_collision_box_sphere(cyan.bb, self.pos, PACMAN_RADIUS):
+            if scatterMode:
+                self.eat_ghost(cyan)
+            else:
+                return True
+        elif not pink.isEaten and pr.check_collision_box_sphere(pink.bb, self.pos, PACMAN_RADIUS):
+            if scatterMode:
+                self.eat_ghost(pink)
+            else:
+                return True
         return False
+
+    def eat_ghost(self, ghost):
+        ghost.ghost_death()
 
                 
 
