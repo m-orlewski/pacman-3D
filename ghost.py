@@ -6,6 +6,7 @@ from cell import CELL_SIZE
 
 GHOST_RADIUS = 0.7
 GHOST_SPEED = 0.05
+RESPAWN_TIME = 5
 
 class Ghost():
     def __init__(self, x, y, z, currentDirection, voxFileName):
@@ -98,7 +99,11 @@ class Ghost():
 
     def move(self, walls):
         if self.isEaten:
-            return
+            currentTime = pr.get_time()
+            if currentTime - self.deathTime >= RESPAWN_TIME:
+                self.respawn(walls)
+            else:
+                return
 
         if self.stepCount == CELL_SIZE/GHOST_SPEED:
             self.updateDirection(walls)
@@ -130,6 +135,11 @@ class Ghost():
         self.isEaten = True
         self.deathTime = pr.get_time()
         self.pos = pr.Vector3(0, 0, 0) # move to respawn
+
+    def respawn(self, walls):
+        self.isEaten = False
+        self.updateDirection(walls)
+        self.stepCount = 0
 
 
 
