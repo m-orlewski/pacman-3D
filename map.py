@@ -69,9 +69,15 @@ class Map():
         elif pr.is_key_down(pr.KEY_UP):
             self.pacman.move_up(self.walls)
 
+        # move ghosts
+        self.red.move(self.walls)
+        self.orange.move(self.walls)
+        self.cyan.move(self.walls)
+        self.pink.move(self.walls)
+
         # check if game over
-        #if self.pacman.check_ghost_collsions(self.red, self.orange, self.cyan, self.pink):
-        #    return GameState.GAME_OVER
+        if self.pacman.check_ghost_collsions(self.red, self.orange, self.cyan, self.pink):
+            return GameState.GAME_OVER
 
         # collect points
         i, boost_activated = self.pacman.collect_points(self.points)
@@ -86,12 +92,6 @@ class Map():
 
         if boost_activated:
             pass #TODO
-
-        # move ghosts
-        self.red.move(self.walls)
-        self.orange.move(self.walls)
-        self.cyan.move(self.walls)
-        self.pink.move(self.walls)
         
         return GameState.GAMEPLAY
 

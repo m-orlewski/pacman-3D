@@ -70,13 +70,13 @@ class Pacman():
         return (None, False)
 
     def check_ghost_collsions(self, red, orange, cyan, pink):
-        if pr.check_collision_spheres(self.pos, PACMAN_RADIUS, red.pos, GHOST_RADIUS):
+        if pr.check_collision_box_sphere(red.bb, self.pos, PACMAN_RADIUS):
             return True
-        elif pr.check_collision_spheres(self.pos, PACMAN_RADIUS, orange.pos, GHOST_RADIUS):
+        elif pr.check_collision_box_sphere(orange.bb, self.pos, PACMAN_RADIUS):
             return True
-        elif pr.check_collision_spheres(self.pos, PACMAN_RADIUS, cyan.pos, GHOST_RADIUS):
+        elif pr.check_collision_box_sphere(cyan.bb, self.pos, PACMAN_RADIUS):
             return True
-        elif pr.check_collision_spheres(self.pos, PACMAN_RADIUS, pink.pos, GHOST_RADIUS):
+        elif pr.check_collision_box_sphere(pink.bb, self.pos, PACMAN_RADIUS):
             return True
         return False
 

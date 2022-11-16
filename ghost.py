@@ -21,6 +21,7 @@ class Ghost():
 
     def draw(self):
         pr.draw_model(self.model, self.pos, 1.0, pr.WHITE)
+        self.bb = pr.BoundingBox(pr.Vector3(self.pos.x - GHOST_RADIUS, self.pos.y - GHOST_RADIUS, self.pos.z - GHOST_RADIUS), pr.Vector3(self.pos.x + GHOST_RADIUS, self.pos.y + GHOST_RADIUS, self.pos.z + GHOST_RADIUS))
 
     def turn_model(self):
         if self.currentDirection == 0:
@@ -37,6 +38,7 @@ class Ghost():
     def load_model(self):
         self.model = pr.load_model(self.voxFileName)
         self.bb = pr.get_model_bounding_box(self.model)
+        print(self.bb.min.x, self.bb.min.z, self.bb.max.x, self.bb.max.z)
         self.center = pr.Vector3(self.bb.min.x + (((self.bb.max.x - self.bb.min.x)/2)), 0, self.bb.min.z + (((self.bb.max.z - self.bb.min.z)/2)))
         self.mat_translate = pr.matrix_translate(-self.center.x, 0, -self.center.z)
         rotation_mult = max(self.currentDirection, self.previousDirection) - min(self.currentDirection, self.previousDirection)
